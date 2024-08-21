@@ -28,6 +28,27 @@ const stats = {
   rank: { level: "A+", percentile: 40 },
 };
 
+/*
+describe("Testes de elementos da funcionalidade que serao melhoradas por nos", () => {
+  it("Tempo de rendenizacao deve ser rapido!", () => {
+
+  });
+
+  it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
+
+  });
+
+  it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
+
+  });
+
+});
+
+describe("Expansao de testes com elementos ja existentes", () => {
+  // (pensar melhor aqui)
+});
+*/
+
 describe("Test renderStatsCard", () => {
   it("should render correctly", () => {
     document.body.innerHTML = renderStatsCard(stats);
