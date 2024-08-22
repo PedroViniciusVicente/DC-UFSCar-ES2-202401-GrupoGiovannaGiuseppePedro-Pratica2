@@ -248,6 +248,7 @@ const fetchStats = async (
     totalIssues: 0,
     totalRepos: 0,
     totalForks: 0,
+    //porcentagemForks: 0,
     totalStars: 0,
     totalDiscussionsStarted: 0,
     totalDiscussionsAnswered: 0,

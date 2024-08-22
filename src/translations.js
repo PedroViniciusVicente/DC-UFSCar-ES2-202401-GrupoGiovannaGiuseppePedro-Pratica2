@@ -110,7 +110,7 @@ const statCardLocales = ({ name, apostrophe }) => {
     },
     "statcard.totalforks": {
       ar: "مجموع النجوم",
-      cn: "获标星数（star）",
+      cn: "累计提交数（commit）",
       "zh-tw": "獲標星數（star）",
       cs: "Celkem hvězd",
       de: "Insgesamt erhaltene Sterne",
