@@ -120,8 +120,6 @@ describe("Expansao de teste com funcionalidades ja existentes porem nao testadas
     resultadoMaior100 = calculateCircleProgress(30000);
     expect(resultadoMaior100).toBe(0);
   });
-
-  
 });
 
 describe("Test renderStatsCard", () => {
