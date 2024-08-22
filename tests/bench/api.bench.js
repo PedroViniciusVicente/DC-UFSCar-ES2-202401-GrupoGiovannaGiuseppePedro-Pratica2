@@ -6,6 +6,8 @@ import { jest } from "@jest/globals";
 
 const stats = {
   name: "Anurag Hazra",
+  totalRepos: 39,
+  totalForks: 33,
   totalStars: 100,
   totalCommits: 200,
   totalIssues: 300,
