@@ -50,6 +50,18 @@ function mudarIdioma(input1, input2) {
 
 
 describe("Testes de elementos da funcionalidade que serao melhoradas por nos", () => {
+  it("A traducao de idiomas deve ser feita facilmente sem precisar mexer na url para gerar uma nova", () => {
+    document.body.innerHTML = renderStatsCard(stats2);
+    console.log(document.getElementsByClassName("header")[0].textContent);
+    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd's GitHub Stats");
+
+    mudarIdioma(document.body.innerHTML, "pt-br");
+    expect(document.getElementsByClassName("header")[0].textContent).toBe("Informacoes do Usuario abcd");
+
+    mudarIdioma(document.body.innerHTML, "cn");
+    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd 统计数据");
+  });
+  
   it("Tempo de rendenizacao deve ser rapido!", () => {
     const t0 = performance.now();
     document.body.innerHTML = renderStatsCard(stats);
@@ -57,7 +69,7 @@ describe("Testes de elementos da funcionalidade que serao melhoradas por nos", (
     const intervaloRenderizar = t1 - t0;
 
     console.log(t1-t0);
-    //expect(intervaloRenderizar).toBeLessThanOrEqual(16);
+    expect(intervaloRenderizar).toBeLessThanOrEqual(20);
   });
 
   it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
@@ -82,24 +94,10 @@ describe("Testes de elementos da funcionalidade que serao melhoradas por nos", (
     const intervaloComCache = t1comcache - t0comcache;
 
     console.log(`O intervalo sem cache foi: ${intervaloSemCache}, enquanto o intervalo com cache foi: ${intervaloComCache}`);
-    //expect(intervaloSemCache).toBeGreaterThan(intervaloComCache);
-  });
-
-  it("A traducao de idiomas deve ser ", () => {
-    document.body.innerHTML = renderStatsCard(stats2);
-    console.log(document.getElementsByClassName("header")[0].textContent);
-    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd's GitHub Stats");
-    mudarIdioma(document.body.innerHTML, "pt-br");
-    //expect(document.getElementsByClassName("header")[0].textContent).toBe("Informacoes do Usuario abcd");
-    mudarIdioma(document.body.innerHTML, "cn");
-    //expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd 统计数据");
+    expect(intervaloSemCache).toBeGreaterThan(intervaloComCache);
   });
 
 });
-
-//describe("Expansao de testes com elementos ja existentes", () => {
-  // (pensar melhor aqui)
-//});
 
 describe("Test renderStatsCard", () => {
   it("should render correctly", () => {
