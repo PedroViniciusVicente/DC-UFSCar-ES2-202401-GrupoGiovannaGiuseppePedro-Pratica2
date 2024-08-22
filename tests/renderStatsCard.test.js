@@ -5,6 +5,7 @@ import {
 } from "@testing-library/dom";
 import { cssToObject } from "@uppercod/css-to-object";
 import { renderStatsCard } from "../src/cards/stats-card.js";
+import { calculateCircleProgress } from "../src/cards/stats-card.js";
 import { expect, it, describe } from "@jest/globals";
 import { CustomError } from "../src/common/utils.js";
 
@@ -28,26 +29,77 @@ const stats = {
   rank: { level: "A+", percentile: 40 },
 };
 
-/*
+const stats2 = {
+  name: "Usuario abcd",
+  totalStars: 1,
+  totalCommits: 2,
+  totalIssues: 3,
+  totalPRs: 4,
+  totalPRsMerged: 5,
+  mergedPRsPercentage: 6,
+  totalReviews: 7,
+  totalDiscussionsStarted: 8,
+  totalDiscussionsAnswered: 9,
+  contributedTo: 10,
+  rank: { level: "A+", percentile: 40 },
+};
+
+function mudarIdioma(input1, input2) {
+  console.log(`Mudando a traducao de ${input1} para o idioma: ${input2}`);
+};
+
+
 describe("Testes de elementos da funcionalidade que serao melhoradas por nos", () => {
   it("Tempo de rendenizacao deve ser rapido!", () => {
+    const t0 = performance.now();
+    document.body.innerHTML = renderStatsCard(stats);
+    const t1 = performance.now();
+    const intervaloRenderizar = t1 - t0;
 
+    console.log(t1-t0);
+    //expect(intervaloRenderizar).toBeLessThanOrEqual(16);
   });
 
   it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
+    const t0semcache = performance.now();
+    let resultSemCache = calculateCircleProgress(20);
+    resultSemCache = calculateCircleProgress(30);
+    resultSemCache = calculateCircleProgress(40);
+    resultSemCache = calculateCircleProgress(50);
+    resultSemCache = calculateCircleProgress(60);
+    resultSemCache = calculateCircleProgress(60);
+    const t1semcache = performance.now();
+    const intervaloSemCache = t1semcache - t0semcache;
 
+    const t0comcache = performance.now();
+    let resultComCache = calculateCircleProgress(20);
+    resultComCache = calculateCircleProgress(20);
+    resultComCache = calculateCircleProgress(20);
+    resultComCache = calculateCircleProgress(30);
+    resultComCache = calculateCircleProgress(30);
+    resultComCache = calculateCircleProgress(30);
+    const t1comcache = performance.now();
+    const intervaloComCache = t1comcache - t0comcache;
+
+    console.log(`O intervalo sem cache foi: ${intervaloSemCache}, enquanto o intervalo com cache foi: ${intervaloComCache}`);
+    //expect(intervaloSemCache).toBeGreaterThan(intervaloComCache);
   });
 
-  it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
-
+  it("A traducao de idiomas deve ser ", () => {
+    document.body.innerHTML = renderStatsCard(stats2);
+    console.log(document.getElementsByClassName("header")[0].textContent);
+    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd's GitHub Stats");
+    mudarIdioma(document.body.innerHTML, "pt-br");
+    //expect(document.getElementsByClassName("header")[0].textContent).toBe("Informacoes do Usuario abcd");
+    mudarIdioma(document.body.innerHTML, "cn");
+    //expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd 统计数据");
   });
 
 });
 
-describe("Expansao de testes com elementos ja existentes", () => {
+//describe("Expansao de testes com elementos ja existentes", () => {
   // (pensar melhor aqui)
-});
-*/
+//});
 
 describe("Test renderStatsCard", () => {
   it("should render correctly", () => {

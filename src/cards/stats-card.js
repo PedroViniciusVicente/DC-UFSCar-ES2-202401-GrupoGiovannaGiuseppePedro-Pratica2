@@ -183,7 +183,7 @@ const getStyles = ({
       transform: rotate(-90deg);
       animation: rankAnimation 1s forwards ease-in-out;
     }
-    ${process.env.NODE_ENV === "test" ? "" : getProgressAnimation({ progress })}
+    ${process.env.NODE_ENV === "test" ? getProgressAnimation({ progress }) : getProgressAnimation({ progress })}
   `;
 };
 
@@ -540,6 +540,8 @@ const renderStatsCard = (stats, options = {}) => {
     </svg>
   `);
 };
+
+export { calculateCircleProgress };
 
 export { renderStatsCard };
 export default renderStatsCard;
