@@ -248,7 +248,6 @@ const fetchStats = async (
     totalIssues: 0,
     totalRepos: 0,
     totalForks: 0,
-    //porcentagemForks: 0,
     totalStars: 0,
     totalDiscussionsStarted: 0,
     totalDiscussionsAnswered: 0,
@@ -332,7 +331,7 @@ const fetchStats = async (
     return prev + 1;
   }, 0);
 
-  stats.totalRepos = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
+  stats.totalRepos = user.repositories.nodes // calculo dos repos
   .filter((data) => {
     return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
   })

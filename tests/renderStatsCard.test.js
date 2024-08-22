@@ -381,7 +381,28 @@ describe("Test renderStatsCard", () => {
   });
 
   it("should render translations", () => {
-    document.body.innerHTML = renderStatsCard(stats, { locale: "cn" });
+    document.body.innerHTML = renderStatsCard(stats, { locale: "pt-br" });
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Estatísticas do GitHub de Anurag Hazra",
+    );
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 0)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total de Repos:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(
+      `"Total de Forks:"`,
+    );
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total de Estrelas:"`);
+    /*document.body.innerHTML = renderStatsCard(stats, { locale: "cn" });
     expect(document.getElementsByClassName("header")[0].textContent).toBe(
       "Anurag Hazra 的 GitHub 统计数据",
     );
@@ -397,7 +418,7 @@ describe("Test renderStatsCard", () => {
     ).toMatchInlineSnapshot(
       `"累计提交数（commit）:"`,
     );
-    /*expect(
+    expect(
       document.querySelector(
         'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
       ).textContent,
