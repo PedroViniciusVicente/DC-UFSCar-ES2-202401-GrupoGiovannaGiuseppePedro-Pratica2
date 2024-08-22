@@ -324,7 +324,13 @@ const fetchStats = async (
   // })
   // .length;
 
-  stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos
+  //stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos limitada ao 100
+
+  stats.totalStars = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100
+  .filter((data) => {
+    return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
+  })
+  .length;
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
