@@ -310,7 +310,7 @@ const fetchStats = async (
   // Retrieve stars while filtering out repositories to be hidden.
   let repoToHide = new Set(exclude_repo);
 
-  // stats.totalStars = user.repositories.nodes
+  // stats.totalStars = user.repositories.nodes // calculo original das stars
   //   .filter((data) => {
   //     return !repoToHide.has(data.name);
   //   })
@@ -318,7 +318,7 @@ const fetchStats = async (
   //     return prev + curr.stargazers.totalCount;
   //   }, 0);
 
-  stats.totalStars = user.repositories.nodes // calculo dos forks
+  stats.totalCommits = user.repositories.nodes // calculo dos forks
   .filter((data) => {
     return data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
   })
@@ -328,13 +328,13 @@ const fetchStats = async (
 
   //stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos limitada ao 100
 
-  // stats.totalStars = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
-  // .filter((data) => {
-  //   return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
-  // })
-  // .reduce((prev, curr) => {
-  //   return prev + 1;
-  // }, 0);
+  stats.totalStars = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
+  .filter((data) => {
+    return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
+  })
+  .reduce((prev, curr) => {
+    return prev + 1;
+  }, 0);
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
