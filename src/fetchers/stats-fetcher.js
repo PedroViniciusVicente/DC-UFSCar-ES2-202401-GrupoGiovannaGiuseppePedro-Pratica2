@@ -318,11 +318,13 @@ const fetchStats = async (
   //     return prev + curr.stargazers.totalCount;
   //   }, 0);
 
-  stats.totalStars = user.repositories.nodes
-  .filter((data) => {
-    return !repoToHide.has(data.name) && data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
-  })
-  .length;
+  // stats.totalStars = user.repositories.nodes // calculo dos forks
+  // .filter((data) => {
+  //   return !repoToHide.has(data.name) && data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
+  // })
+  // .length;
+
+  stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
