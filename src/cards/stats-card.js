@@ -272,6 +272,12 @@ const renderStatsCard = (stats, options = {}) => {
     value: totalStars,
     id: "stars",
   };
+  STATS.forks = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalforks"),
+    value: totalForks,
+    id: "forks",
+  }
   STATS.commits = {
     icon: icons.commits,
     label: `${i18n.t("statcard.commits")}${
