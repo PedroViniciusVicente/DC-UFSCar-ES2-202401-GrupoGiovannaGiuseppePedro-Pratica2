@@ -21,6 +21,9 @@ const GRAPHQL_REPOS_FIELD = `
     nodes {
       name
       isFork
+      stargazers {
+        totalCount
+      }
     }
     pageInfo {
       hasNextPage
@@ -312,13 +315,13 @@ const fetchStats = async (
   // Retrieve stars while filtering out repositories to be hidden.
   let repoToHide = new Set(exclude_repo);
 
-  // stats.totalStars = user.repositories.nodes // calculo original das stars
-  //   .filter((data) => {
-  //     return !repoToHide.has(data.name);
-  //   })
-  //   .reduce((prev, curr) => {
-  //     return prev + curr.stargazers.totalCount;
-  //   }, 0);
+  stats.totalStars = user.repositories.nodes // calculo original das stars
+    .filter((data) => {
+      return !repoToHide.has(data.name);
+    })
+    .reduce((prev, curr) => {
+      return prev + curr.stargazers.totalCount;
+    }, 0);
 
   stats.totalForks = user.repositories.nodes // calculo dos forks
   .filter((data) => {
@@ -327,8 +330,6 @@ const fetchStats = async (
   .reduce((prev, curr) => {
     return prev + 1;
   }, 0);
-
-  //stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos limitada ao 100
 
   stats.totalRepos = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
   .filter((data) => {
