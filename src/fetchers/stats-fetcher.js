@@ -330,7 +330,9 @@ const fetchStats = async (
   .filter((data) => {
     return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
   })
-  .length;
+  .reduce((prev, curr) => {
+    return prev + 1;
+  }, 0);
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
