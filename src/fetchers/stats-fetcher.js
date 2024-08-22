@@ -20,9 +20,7 @@ const GRAPHQL_REPOS_FIELD = `
     totalCount
     nodes {
       name
-      stargazers {
-        totalCount
-      }
+      isFork
     }
     pageInfo {
       hasNextPage
@@ -145,14 +143,20 @@ const statsFetcher = async ({
     }
 
     // Disable multi page fetching on public Vercel instance due to rate limits.
-    const repoNodesWithStars = repoNodes.filter(
-      (node) => node.stargazers.totalCount !== 0,
-    );
+    // const repoNodesWithStars = repoNodes.filter(
+    //   (node) => node.stargazers.totalCount !== 0,
+    // );
+    // hasNextPage =
+    //   process.env.FETCH_MULTI_PAGE_STARS === "true" &&
+    //   repoNodes.length === repoNodesWithStars.length &&
+    //   res.data.data.user.repositories.pageInfo.hasNextPage;
+    // endCursor = res.data.data.user.repositories.pageInfo.endCursor;
+
     hasNextPage =
       process.env.FETCH_MULTI_PAGE_STARS === "true" &&
-      repoNodes.length === repoNodesWithStars.length &&
       res.data.data.user.repositories.pageInfo.hasNextPage;
     endCursor = res.data.data.user.repositories.pageInfo.endCursor;
+
   }
 
   return stats;
@@ -306,13 +310,19 @@ const fetchStats = async (
   // Retrieve stars while filtering out repositories to be hidden.
   let repoToHide = new Set(exclude_repo);
 
+  // stats.totalStars = user.repositories.nodes
+  //   .filter((data) => {
+  //     return !repoToHide.has(data.name);
+  //   })
+  //   .reduce((prev, curr) => {
+  //     return prev + curr.stargazers.totalCount;
+  //   }, 0);
+
   stats.totalStars = user.repositories.nodes
-    .filter((data) => {
-      return !repoToHide.has(data.name);
-    })
-    .reduce((prev, curr) => {
-      return prev + curr.stargazers.totalCount;
-    }, 0);
+  .filter((data) => {
+    return !repoToHide.has(data.name) && data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
+  })
+  .length;
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
