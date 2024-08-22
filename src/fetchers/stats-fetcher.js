@@ -320,7 +320,7 @@ const fetchStats = async (
   //     return prev + curr.stargazers.totalCount;
   //   }, 0);
 
-  stats.totalCommits = user.repositories.nodes // calculo dos forks
+  stats.totalForks = user.repositories.nodes // calculo dos forks
   .filter((data) => {
     return data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
   })
@@ -330,7 +330,7 @@ const fetchStats = async (
 
   //stats.totalStars = user.repositories.nodes.length; // calculo da qtd de repos limitada ao 100
 
-  stats.totalStars = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
+  stats.totalRepos = user.repositories.nodes // tentando calcular qtd de repos sem limitar aos 100 (continuo limitado)
   .filter((data) => {
     return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
   })
