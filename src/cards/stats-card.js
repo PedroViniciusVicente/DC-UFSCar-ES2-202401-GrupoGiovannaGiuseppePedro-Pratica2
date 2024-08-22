@@ -202,6 +202,8 @@ const getStyles = ({
 const renderStatsCard = (stats, options = {}) => {
   const {
     name,
+    totalRepos,
+    totalForks,
     totalStars,
     totalCommits,
     totalIssues,
@@ -264,6 +266,19 @@ const renderStatsCard = (stats, options = {}) => {
 
   // Meta data for creating text nodes with createTextNode function
   const STATS = {};
+
+  STATS.repos = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalrepos"),
+    value: totalRepos,
+    id: "repos",
+  };
+  STATS.forks = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalforks"),
+    value: totalForks,
+    id: "forks",
+  };
 
   STATS.stars = {
     icon: icons.star,

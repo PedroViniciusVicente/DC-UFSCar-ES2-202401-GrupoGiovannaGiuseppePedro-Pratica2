@@ -243,6 +243,8 @@ const fetchStats = async (
     totalReviews: 0,
     totalCommits: 0,
     totalIssues: 0,
+    totalRepos: 0,
+    totalForks: 0,
     totalStars: 0,
     totalDiscussionsStarted: 0,
     totalDiscussionsAnswered: 0,
