@@ -99,6 +99,31 @@ describe("Testes de elementos da funcionalidade que serao melhoradas por nos", (
 
 });
 
+describe("Expansao de teste com funcionalidades ja existentes porem nao testadas", () => {
+  it("Caso o valor passado para a proporcao seja inferior a zero", () => {
+    let resultadoMenor0 = calculateCircleProgress(-10);
+    expect(resultadoMenor0).toBeCloseTo(251.3274);
+
+    resultadoMenor0 = calculateCircleProgress(-23.5);
+    expect(resultadoMenor0).toBeCloseTo(251.3274);
+  });
+
+  it("Caso o valor passado para a proporcao seja igual a zero", () => {
+    let resultadoIgual0 = calculateCircleProgress(0);
+    expect(resultadoIgual0).toBeCloseTo(251.3274);
+  });
+
+  it("Caso o valor passado para a proporcao seja superior a 100", () => {
+    let resultadoMaior100 = calculateCircleProgress(120);
+    expect(resultadoMaior100).toBe(0);
+
+    resultadoMaior100 = calculateCircleProgress(30000);
+    expect(resultadoMaior100).toBe(0);
+  });
+
+  
+});
+
 describe("Test renderStatsCard", () => {
   it("should render correctly", () => {
     document.body.innerHTML = renderStatsCard(stats);
