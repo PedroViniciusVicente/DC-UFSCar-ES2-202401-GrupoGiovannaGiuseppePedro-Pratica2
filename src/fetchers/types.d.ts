@@ -33,6 +33,7 @@ export type StatsData = {
   totalCommits: number;
   totalIssues: number;
   totalStars: number;
+  totalForks: number;
   totalDiscussionsStarted: number;
   totalDiscussionsAnswered: number;
   contributedTo: number;

@@ -203,6 +203,7 @@ const renderStatsCard = (stats, options = {}) => {
   const {
     name,
     totalStars,
+    totalForks,
     totalCommits,
     totalIssues,
     totalPRs,

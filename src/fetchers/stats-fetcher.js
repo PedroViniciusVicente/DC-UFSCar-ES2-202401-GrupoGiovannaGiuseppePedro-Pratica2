@@ -23,6 +23,9 @@ const GRAPHQL_REPOS_FIELD = `
       stargazers {
         totalCount
       }
+      forks {
+        totalCount
+      }
     }
     pageInfo {
       hasNextPage
@@ -240,6 +243,7 @@ const fetchStats = async (
     totalCommits: 0,
     totalIssues: 0,
     totalStars: 0,
+    totalForks: 0,
     totalDiscussionsStarted: 0,
     totalDiscussionsAnswered: 0,
     contributedTo: 0,
@@ -314,6 +318,14 @@ const fetchStats = async (
       return prev + curr.stargazers.totalCount;
     }, 0);
 
+    stats.totalForks = user.repositories.nodes
+    .filter((data) => {
+      return !repoToHide.has(data.name);
+    })
+    .reduce((prev, curr) => {
+      return prev + curr.forks.totalCount;
+    }, 0);
+
   stats.rank = calculateRank({
     all_commits: include_all_commits,
     commits: stats.totalCommits,
@@ -330,3 +342,6 @@ const fetchStats = async (
 
 export { fetchStats };
 export default fetchStats;
+
+const stats = await fetchStats("nome-de-usuario-github");
+console.log(`Total de forks: ${stats.totalForks}`);
