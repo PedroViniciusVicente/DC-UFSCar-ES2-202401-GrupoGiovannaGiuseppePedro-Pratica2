@@ -31,6 +31,31 @@ const stats = {
 };
 
 describe("Test renderStatsCard", () => {
+  it("the height should render correctly", () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    expect(
+      document.body.getElementsByTagName("svg")[0].getAttribute("height"),
+    ).toBe("245");
+  });
+
+  it("the attributes should render correctly", () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Anurag Hazra's GitHub Stats",
+    );
+    expect(getByTestId(document.body, "stars").textContent).toBe("100");
+    expect(getByTestId(document.body, "repos").textContent).toBe("33");
+    expect(getByTestId(document.body, "forks").textContent).toBe("29");
+    expect(getByTestId(document.body, "commits").textContent).toBe("200");
+    expect(getByTestId(document.body, "issues").textContent).toBe("300");
+    expect(getByTestId(document.body, "prs").textContent).toBe("400");
+    expect(getByTestId(document.body, "contribs").textContent).toBe("500");
+    expect(queryByTestId(document.body, "card-bg")).toBeInTheDocument();
+    expect(queryByTestId(document.body, "rank-circle")).toBeInTheDocument();
+  });
+
   it("should render correctly", () => {
     document.body.innerHTML = renderStatsCard(stats);
 
@@ -38,7 +63,6 @@ describe("Test renderStatsCard", () => {
       "Anurag Hazra's GitHub Stats",
     );
 
-    //console.log(document.body.getElementsByTagName("svg")[0].getAttribute("height"));
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
     ).toBe("245");
@@ -85,7 +109,6 @@ describe("Test renderStatsCard", () => {
       hide: ["issues", "prs", "contribs"],
     });
 
-    //console.log(document.body.getElementsByTagName("svg")[0].getAttribute("height"));
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
     ).toBe("170"); // height should be 150 because we clamped it.
@@ -113,7 +136,6 @@ describe("Test renderStatsCard", () => {
       ],
     });
 
-    console.log(document.body.getElementsByTagName("svg")[0].getAttribute("height"));
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
     ).toBe("370");
@@ -380,7 +402,29 @@ describe("Test renderStatsCard", () => {
     ).toBe("287");
   });
 
-  it("should render translations", () => {
+  it("should render translations para o english", () => {
+    document.body.innerHTML = renderStatsCard(stats, { locale: "en" });
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Anurag Hazra's GitHub Stats",
+    );
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 0)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Repos Count:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Forks Count:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Stars:"`);
+  });
+
+  it("should render translations para o pt-br", () => {
     document.body.innerHTML = renderStatsCard(stats, { locale: "pt-br" });
     expect(document.getElementsByClassName("header")[0].textContent).toBe(
       "Estatísticas do GitHub de Anurag Hazra",
@@ -394,9 +438,7 @@ describe("Test renderStatsCard", () => {
       document.querySelector(
         'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
       ).textContent,
-    ).toMatchInlineSnapshot(
-      `"Total de Forks:"`,
-    );
+    ).toMatchInlineSnapshot(`"Total de Forks:"`);
     expect(
       document.querySelector(
         'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
@@ -485,7 +527,15 @@ describe("Test renderStatsCard", () => {
   it("should throw error if all stats and rank icon are hidden", () => {
     expect(() =>
       renderStatsCard(stats, {
-        hide: ["repos", "forks", "stars", "commits", "prs", "issues", "contribs"],
+        hide: [
+          "repos",
+          "forks",
+          "stars",
+          "commits",
+          "prs",
+          "issues",
+          "contribs",
+        ],
         hide_rank: true,
       }),
     ).toThrow(
