@@ -9,6 +9,8 @@ import { expect, it, describe, afterEach } from "@jest/globals";
 
 const stats = {
   name: "Anurag Hazra",
+  totalRepos: 1,
+  totalForks: 0,
   totalStars: 100,
   totalCommits: 200,
   totalIssues: 300,

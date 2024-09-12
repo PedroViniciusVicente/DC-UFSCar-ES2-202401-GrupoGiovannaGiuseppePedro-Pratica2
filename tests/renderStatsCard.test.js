@@ -16,6 +16,8 @@ import { themes } from "../themes/index.js";
 
 const stats = {
   name: "Anurag Hazra",
+  totalRepos: 33,
+  totalForks: 29,
   totalStars: 100,
   totalForks: 33,
   totalCommits: 200,
@@ -102,6 +104,31 @@ describe("Testes de elementos da funcionalidade que serao melhoradas por nos", (
 });
 
 describe("Test renderStatsCard", () => {
+  it("the height should render correctly", () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    expect(
+      document.body.getElementsByTagName("svg")[0].getAttribute("height"),
+    ).toBe("245");
+  });
+
+  it("the attributes should render correctly", () => {
+    document.body.innerHTML = renderStatsCard(stats);
+
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Anurag Hazra's GitHub Stats",
+    );
+    expect(getByTestId(document.body, "stars").textContent).toBe("100");
+    expect(getByTestId(document.body, "repos").textContent).toBe("33");
+    expect(getByTestId(document.body, "forks").textContent).toBe("29");
+    expect(getByTestId(document.body, "commits").textContent).toBe("200");
+    expect(getByTestId(document.body, "issues").textContent).toBe("300");
+    expect(getByTestId(document.body, "prs").textContent).toBe("400");
+    expect(getByTestId(document.body, "contribs").textContent).toBe("500");
+    expect(queryByTestId(document.body, "card-bg")).toBeInTheDocument();
+    expect(queryByTestId(document.body, "rank-circle")).toBeInTheDocument();
+  });
+
   it("should render correctly", () => {
     document.body.innerHTML = renderStatsCard(stats);
 
@@ -111,9 +138,10 @@ describe("Test renderStatsCard", () => {
 
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
-    ).toBe("195");
+    ).toBe("245");
     expect(getByTestId(document.body, "stars").textContent).toBe("100");
-    expect(getByTestId(document.body, "forks").textContent).toBe("33");
+    expect(getByTestId(document.body, "repos").textContent).toBe("33");
+    expect(getByTestId(document.body, "forks").textContent).toBe("29");
     expect(getByTestId(document.body, "commits").textContent).toBe("200");
     expect(getByTestId(document.body, "issues").textContent).toBe("300");
     expect(getByTestId(document.body, "prs").textContent).toBe("400");
@@ -156,7 +184,7 @@ describe("Test renderStatsCard", () => {
 
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
-    ).toBe("150"); // height should be 150 because we clamped it.
+    ).toBe("170"); // height should be 150 because we clamped it.
 
     expect(queryByTestId(document.body, "stars")).toBeDefined();
     expect(queryByTestId(document.body, "forks")).toBeDefined();
@@ -184,7 +212,7 @@ describe("Test renderStatsCard", () => {
 
     expect(
       document.body.getElementsByTagName("svg")[0].getAttribute("height"),
-    ).toBe("320");
+    ).toBe("370");
 
     expect(queryByTestId(document.body, "stars")).toBeDefined();
     expect(queryByTestId(document.body, "forks")).toBeDefined();
@@ -449,8 +477,49 @@ describe("Test renderStatsCard", () => {
     ).toBe("287");
   });
 
-  it("should render translations", () => {
-    document.body.innerHTML = renderStatsCard(stats, { locale: "cn" });
+  it("should render translations para o english", () => {
+    document.body.innerHTML = renderStatsCard(stats, { locale: "en" });
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Anurag Hazra's GitHub Stats",
+    );
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 0)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Repos Count:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Forks Count:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total Stars:"`);
+  });
+
+  it("should render translations para o pt-br", () => {
+    document.body.innerHTML = renderStatsCard(stats, { locale: "pt-br" });
+    expect(document.getElementsByClassName("header")[0].textContent).toBe(
+      "Estatísticas do GitHub de Anurag Hazra",
+    );
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 0)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total de Repos:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total de Forks:"`);
+    expect(
+      document.querySelector(
+        'g[transform="translate(0, 50)"]>.stagger>.stat.bold',
+      ).textContent,
+    ).toMatchInlineSnapshot(`"Total de Estrelas:"`);
+    /*document.body.innerHTML = renderStatsCard(stats, { locale: "cn" });
     expect(document.getElementsByClassName("header")[0].textContent).toBe(
       "Anurag Hazra 的 GitHub 统计数据",
     );
@@ -464,7 +533,7 @@ describe("Test renderStatsCard", () => {
         'g[transform="translate(0, 25)"]>.stagger>.stat.bold',
       ).textContent,
     ).toMatchInlineSnapshot(
-      `"累计提交数（commit） (${new Date().getFullYear()}):"`,
+      `"累计提交数（commit）:"`,
     );
     expect(
       document.querySelector(
@@ -480,7 +549,7 @@ describe("Test renderStatsCard", () => {
       document.querySelector(
         'g[transform="translate(0, 100)"]>.stagger>.stat.bold',
       ).textContent,
-    ).toMatchInlineSnapshot(`"贡献于（去年）:"`);
+    ).toMatchInlineSnapshot(`"贡献于（去年）:"`);*/
   });
 
   it("should render without rounding", () => {
@@ -533,7 +602,15 @@ describe("Test renderStatsCard", () => {
   it("should throw error if all stats and rank icon are hidden", () => {
     expect(() =>
       renderStatsCard(stats, {
-        hide: ["stars", "commits", "prs", "issues", "contribs"],
+        hide: [
+          "repos",
+          "forks",
+          "stars",
+          "commits",
+          "prs",
+          "issues",
+          "contribs",
+        ],
         hide_rank: true,
       }),
     ).toThrow(

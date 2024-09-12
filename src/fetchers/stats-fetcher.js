@@ -20,6 +20,7 @@ const GRAPHQL_REPOS_FIELD = `
     totalCount
     nodes {
       name
+      isFork
       stargazers {
         totalCount
       }
@@ -148,12 +149,17 @@ const statsFetcher = async ({
     }
 
     // Disable multi page fetching on public Vercel instance due to rate limits.
-    const repoNodesWithStars = repoNodes.filter(
-      (node) => node.stargazers.totalCount !== 0,
-    );
+    // const repoNodesWithStars = repoNodes.filter(
+    //   (node) => node.stargazers.totalCount !== 0,
+    // );
+    // hasNextPage =
+    //   process.env.FETCH_MULTI_PAGE_STARS === "true" &&
+    //   repoNodes.length === repoNodesWithStars.length &&
+    //   res.data.data.user.repositories.pageInfo.hasNextPage;
+    // endCursor = res.data.data.user.repositories.pageInfo.endCursor;
+
     hasNextPage =
       process.env.FETCH_MULTI_PAGE_STARS === "true" &&
-      repoNodes.length === repoNodesWithStars.length &&
       res.data.data.user.repositories.pageInfo.hasNextPage;
     endCursor = res.data.data.user.repositories.pageInfo.endCursor;
   }
@@ -242,6 +248,8 @@ const fetchStats = async (
     totalReviews: 0,
     totalCommits: 0,
     totalIssues: 0,
+    totalRepos: 0,
+    totalForks: 0,
     totalStars: 0,
     totalForks: 0,
     totalDiscussionsStarted: 0,
@@ -310,7 +318,7 @@ const fetchStats = async (
   // Retrieve stars while filtering out repositories to be hidden.
   let repoToHide = new Set(exclude_repo);
 
-  stats.totalStars = user.repositories.nodes
+  stats.totalStars = user.repositories.nodes // calculo original das stars
     .filter((data) => {
       return !repoToHide.has(data.name);
     })
@@ -318,13 +326,30 @@ const fetchStats = async (
       return prev + curr.stargazers.totalCount;
     }, 0);
 
-    stats.totalForks = user.repositories.nodes
+    // versao antiga (eu acho)
+    //stats.totalForks = user.repositories.nodes
+    //.filter((data) => {
+    //  return !repoToHide.has(data.name);
+    //})
+    //.reduce((prev, curr) => {
+    //  return prev + curr.forks.totalCount;
+
+  stats.totalForks = user.repositories.nodes // calculo dos forks
     .filter((data) => {
-      return !repoToHide.has(data.name);
+      return data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
     })
-    .reduce((prev, curr) => {
-      return prev + curr.forks.totalCount;
+    .reduce((prev) => {
+      return prev + 1;
     }, 0);
+
+  stats.totalRepos = user.repositories.nodes // calculo dos repos
+    .filter((data) => {
+      return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
+    })
+    .reduce((prev) => {
+      return prev + 1;
+
+  }, 0);
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
