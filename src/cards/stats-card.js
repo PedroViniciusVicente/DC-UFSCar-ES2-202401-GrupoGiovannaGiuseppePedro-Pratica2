@@ -274,87 +274,7 @@ const renderStatsCard = (stats, options = {}) => {
   });
 
   // Meta data for creating text nodes with createTextNode function
-  const STATS = {};
-
-  STATS.stars = {
-    icon: icons.star,
-    label: i18n.t("statcard.totalstars"),
-    value: totalStars,
-    id: "stars",
-  };
-  STATS.commits = {
-    icon: icons.commits,
-    label: `${i18n.t("statcard.commits")}${
-      include_all_commits ? "" : ` (${new Date().getFullYear()})`
-    }`,
-    value: totalCommits,
-    id: "commits",
-  };
-  STATS.prs = {
-    icon: icons.prs,
-    label: i18n.t("statcard.prs"),
-    value: totalPRs,
-    id: "prs",
-  };
-
-  if (show.includes("prs_merged")) {
-    STATS.prs_merged = {
-      icon: icons.prs_merged,
-      label: i18n.t("statcard.prs-merged"),
-      value: totalPRsMerged,
-      id: "prs_merged",
-    };
-  }
-
-  if (show.includes("prs_merged_percentage")) {
-    STATS.prs_merged_percentage = {
-      icon: icons.prs_merged_percentage,
-      label: i18n.t("statcard.prs-merged-percentage"),
-      value: mergedPRsPercentage.toFixed(2),
-      id: "prs_merged_percentage",
-      unitSymbol: "%",
-    };
-  }
-
-  if (show.includes("reviews")) {
-    STATS.reviews = {
-      icon: icons.reviews,
-      label: i18n.t("statcard.reviews"),
-      value: totalReviews,
-      id: "reviews",
-    };
-  }
-
-  STATS.issues = {
-    icon: icons.issues,
-    label: i18n.t("statcard.issues"),
-    value: totalIssues,
-    id: "issues",
-  };
-
-  if (show.includes("discussions_started")) {
-    STATS.discussions_started = {
-      icon: icons.discussions_started,
-      label: i18n.t("statcard.discussions-started"),
-      value: totalDiscussionsStarted,
-      id: "discussions_started",
-    };
-  }
-  if (show.includes("discussions_answered")) {
-    STATS.discussions_answered = {
-      icon: icons.discussions_answered,
-      label: i18n.t("statcard.discussions-answered"),
-      value: totalDiscussionsAnswered,
-      id: "discussions_answered",
-    };
-  }
-
-  STATS.contribs = {
-    icon: icons.contribs,
-    label: i18n.t("statcard.contribs"),
-    value: contributedTo,
-    id: "contribs",
-  };
+  const STATS = funcaoMetadadosSVG(i18n, totalStars, include_all_commits, totalCommits, totalPRs, show, totalPRsMerged, mergedPRsPercentage, totalReviews, totalIssues, totalDiscussionsStarted, totalDiscussionsAnswered, contributedTo);
 
   const longLocales = [
     "cn",
@@ -494,51 +414,7 @@ const renderStatsCard = (stats, options = {}) => {
    *
    * @returns {number} - Rank circle translation value.
    */
-  const calculateRankXTranslation = () => {
-    if (statItems.length) {
-      const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
-      if (width > RANK_CARD_DEFAULT_WIDTH) {
-        const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
-        return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
-      } else {
-        return minXTranslation + (width - minCardWidth) / 2;
-      }
-    } else {
-      return width / 2 + 20 - 10;
-    }
-  };
-
-  // Conditionally rendered elements
-  const rankCircle = hide_rank
-    ? ""
-    : `<g data-testid="rank-circle"
-          transform="translate(${calculateRankXTranslation()}, ${
-            height / 2 - 50
-          })">
-        <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
-        <circle class="rank-circle" cx="-10" cy="8" r="40" />
-        <g class="rank-text">
-          ${rankIcon(rank_icon, rank?.level, rank?.percentile)}
-        </g>
-      </g>`;
-
-  // Accessibility Labels
-  const labels = Object.keys(STATS)
-    .filter((key) => !hide.includes(key))
-    .map((key) => {
-      if (key === "commits") {
-        return `${i18n.t("statcard.commits")} ${
-          include_all_commits ? "" : `in ${new Date().getFullYear()}`
-        } : ${STATS[key].value}`;
-      }
-      return `${STATS[key].label}: ${STATS[key].value}`;
-    })
-    .join(", ");
-
-  card.setAccessibilityLabel({
-    title: `${card.title}, Rank: ${rank.level}`,
-    desc: labels,
-  });
+  const rankCircle = calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, hide_rank, height, rank_icon, rank, STATS, hide, i18n, include_all_commits, card);
 
   return (
     `
@@ -599,3 +475,132 @@ const renderStatsCard = (stats, options = {}) => {
 
 export { renderStatsCard, calculateCircleProgress };
 export default renderStatsCard;
+
+function calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, hide_rank, height, rank_icon, rank, STATS, hide, i18n, include_all_commits, card) {
+  const calculateRankXTranslation = () => {
+    if (statItems.length) {
+      const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
+      if (width > RANK_CARD_DEFAULT_WIDTH) {
+        const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
+        return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
+      } else {
+        return minXTranslation + (width - minCardWidth) / 2;
+      }
+    } else {
+      return width / 2 + 20 - 10;
+    }
+  };
+
+  // Conditionally rendered elements
+  const rankCircle = hide_rank
+    ? ""
+    : `<g data-testid="rank-circle"
+          transform="translate(${calculateRankXTranslation()}, ${height / 2 - 50})">
+        <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
+        <circle class="rank-circle" cx="-10" cy="8" r="40" />
+        <g class="rank-text">
+          ${rankIcon(rank_icon, rank?.level, rank?.percentile)}
+        </g>
+      </g>`;
+
+  // Accessibility Labels
+  const labels = Object.keys(STATS)
+    .filter((key) => !hide.includes(key))
+    .map((key) => {
+      if (key === "commits") {
+        return `${i18n.t("statcard.commits")} ${include_all_commits ? "" : `in ${new Date().getFullYear()}`} : ${STATS[key].value}`;
+      }
+      return `${STATS[key].label}: ${STATS[key].value}`;
+    })
+    .join(", ");
+
+  card.setAccessibilityLabel({
+    title: `${card.title}, Rank: ${rank.level}`,
+    desc: labels,
+  });
+  return rankCircle;
+}
+
+function funcaoMetadadosSVG(i18n, totalStars, include_all_commits, totalCommits, totalPRs, show, totalPRsMerged, mergedPRsPercentage, totalReviews, totalIssues, totalDiscussionsStarted, totalDiscussionsAnswered, contributedTo) {
+  const STATS = {};
+
+  STATS.stars = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalstars"),
+    value: totalStars,
+    id: "stars",
+  };
+  STATS.commits = {
+    icon: icons.commits,
+    label: `${i18n.t("statcard.commits")}${include_all_commits ? "" : ` (${new Date().getFullYear()})`}`,
+    value: totalCommits,
+    id: "commits",
+  };
+  STATS.prs = {
+    icon: icons.prs,
+    label: i18n.t("statcard.prs"),
+    value: totalPRs,
+    id: "prs",
+  };
+
+  if (show.includes("prs_merged")) {
+    STATS.prs_merged = {
+      icon: icons.prs_merged,
+      label: i18n.t("statcard.prs-merged"),
+      value: totalPRsMerged,
+      id: "prs_merged",
+    };
+  }
+
+  if (show.includes("prs_merged_percentage")) {
+    STATS.prs_merged_percentage = {
+      icon: icons.prs_merged_percentage,
+      label: i18n.t("statcard.prs-merged-percentage"),
+      value: mergedPRsPercentage.toFixed(2),
+      id: "prs_merged_percentage",
+      unitSymbol: "%",
+    };
+  }
+
+  if (show.includes("reviews")) {
+    STATS.reviews = {
+      icon: icons.reviews,
+      label: i18n.t("statcard.reviews"),
+      value: totalReviews,
+      id: "reviews",
+    };
+  }
+
+  STATS.issues = {
+    icon: icons.issues,
+    label: i18n.t("statcard.issues"),
+    value: totalIssues,
+    id: "issues",
+  };
+
+  if (show.includes("discussions_started")) {
+    STATS.discussions_started = {
+      icon: icons.discussions_started,
+      label: i18n.t("statcard.discussions-started"),
+      value: totalDiscussionsStarted,
+      id: "discussions_started",
+    };
+  }
+  if (show.includes("discussions_answered")) {
+    STATS.discussions_answered = {
+      icon: icons.discussions_answered,
+      label: i18n.t("statcard.discussions-answered"),
+      value: totalDiscussionsAnswered,
+      id: "discussions_answered",
+    };
+  }
+
+  STATS.contribs = {
+    icon: icons.contribs,
+    label: i18n.t("statcard.contribs"),
+    value: contributedTo,
+    id: "contribs",
+  };
+  return STATS;
+}
+
