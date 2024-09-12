@@ -322,79 +322,14 @@ const renderStatsCard = (stats, options = {}) => {
 
   // Calculate the card height depending on how many items there are
   // but if rank circle is visible clamp the minimum height to `150`
-  let height = Math.max(
-    45 + (statItems.length + 1) * lheight,
-    hide_rank ? 0 : statItems.length ? 150 : 180,
-  );
-
-  // the lower the user's percentile the better
-  const progress = 100 - rank.percentile;
-  const cssStyles = getStyles({
-    titleColor,
-    ringColor,
-    textColor,
-    iconColor,
-    show_icons,
-    progress,
-  });
-
-  const calculateTextWidth = () => {
-    return measureText(
-      custom_title
-        ? custom_title
-        : statItems.length
-          ? i18n.t("statcard.title")
-          : i18n.t("statcard.ranktitle"),
-    );
-  };
+  var { calculateTextWidth, height, cssStyles } = definirTamanhoCard(statItems, lheight, hide_rank, rank, titleColor, ringColor, textColor, iconColor, show_icons, custom_title, i18n);
 
   /*
     When hide_rank=true, the minimum card width is 270 px + the title length and padding.
     When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
     Numbers are picked by looking at existing dimensions on production.
   */
-  const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
-  const minCardWidth =
-    (hide_rank
-      ? clampValue(
-          50 /* padding */ + calculateTextWidth() * 2,
-          CARD_MIN_WIDTH,
-          Infinity,
-        )
-      : statItems.length
-        ? RANK_CARD_MIN_WIDTH
-        : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
-  const defaultCardWidth =
-    (hide_rank
-      ? CARD_DEFAULT_WIDTH
-      : statItems.length
-        ? RANK_CARD_DEFAULT_WIDTH
-        : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
-  let width = card_width
-    ? isNaN(card_width)
-      ? defaultCardWidth
-      : card_width
-    : defaultCardWidth;
-  if (width < minCardWidth) {
-    width = minCardWidth;
-  }
-
-  const card = new Card({
-    customTitle: custom_title,
-    defaultTitle: statItems.length
-      ? i18n.t("statcard.title")
-      : i18n.t("statcard.ranktitle"),
-    width,
-    height,
-    border_radius,
-    colors: {
-      titleColor,
-      textColor,
-      iconColor,
-      bgColor,
-      borderColor,
-    },
-  });
+  var { card, iconWidth, width, minCardWidth } = estruturacaoCard(show_icons, statItems, hide_rank, calculateTextWidth, card_width, custom_title, i18n, height, border_radius, titleColor, textColor, iconColor, bgColor, borderColor);
 
   card.setHideBorder(hide_border);
   card.setHideTitle(hide_title);
@@ -475,6 +410,79 @@ const renderStatsCard = (stats, options = {}) => {
 
 export { renderStatsCard, calculateCircleProgress };
 export default renderStatsCard;
+
+function estruturacaoCard(show_icons, statItems, hide_rank, calculateTextWidth, card_width, custom_title, i18n, height, border_radius, titleColor, textColor, iconColor, bgColor, borderColor) {
+  const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
+  const minCardWidth = (hide_rank
+    ? clampValue(
+      50 /* padding */ + calculateTextWidth() * 2,
+      CARD_MIN_WIDTH,
+      Infinity
+    )
+    : statItems.length
+      ? RANK_CARD_MIN_WIDTH
+      : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
+  const defaultCardWidth = (hide_rank
+    ? CARD_DEFAULT_WIDTH
+    : statItems.length
+      ? RANK_CARD_DEFAULT_WIDTH
+      : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
+  let width = card_width
+    ? isNaN(card_width)
+      ? defaultCardWidth
+      : card_width
+    : defaultCardWidth;
+  if (width < minCardWidth) {
+    width = minCardWidth;
+  }
+
+  const card = new Card({
+    customTitle: custom_title,
+    defaultTitle: statItems.length
+      ? i18n.t("statcard.title")
+      : i18n.t("statcard.ranktitle"),
+    width,
+    height,
+    border_radius,
+    colors: {
+      titleColor,
+      textColor,
+      iconColor,
+      bgColor,
+      borderColor,
+    },
+  });
+  return { card, iconWidth, width, minCardWidth };
+}
+
+function definirTamanhoCard(statItems, lheight, hide_rank, rank, titleColor, ringColor, textColor, iconColor, show_icons, custom_title, i18n) {
+  let height = Math.max(
+    45 + (statItems.length + 1) * lheight,
+    hide_rank ? 0 : statItems.length ? 150 : 180
+  );
+
+  // the lower the user's percentile the better
+  const progress = 100 - rank.percentile;
+  const cssStyles = getStyles({
+    titleColor,
+    ringColor,
+    textColor,
+    iconColor,
+    show_icons,
+    progress,
+  });
+
+  const calculateTextWidth = () => {
+    return measureText(
+      custom_title
+        ? custom_title
+        : statItems.length
+          ? i18n.t("statcard.title")
+          : i18n.t("statcard.ranktitle")
+    );
+  };
+  return { calculateTextWidth, height, cssStyles };
+}
 
 function calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, hide_rank, height, rank_icon, rank, STATS, hide, i18n, include_all_commits, card) {
   const calculateRankXTranslation = () => {
