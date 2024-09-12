@@ -39,7 +39,9 @@ export default async (req, res) => {
     rank_icon,
     show,
   } = req.query;
-  res.setHeader("Content-Type", "image/svg+xml");
+
+  // Define o cabeçalho como HTML
+  res.setHeader("Content-Type", "text/html");
 
   if (blacklist.includes(username)) {
     return res.send(
@@ -54,15 +56,7 @@ export default async (req, res) => {
   }
 
   if (locale && !isLocaleAvailable(locale)) {
-    return res.send(
-      renderError("Something went wrong", "Language not found", {
-        title_color,
-        text_color,
-        bg_color,
-        border_color,
-        theme,
-      }),
-    );
+    return res.send(renderError("Something went wrong", "Language not found"));
   }
 
   try {
@@ -93,6 +87,7 @@ export default async (req, res) => {
       }, s-maxage=${cacheSeconds}, stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
     );
 
+    // Retorna o SVG dentro de uma estrutura HTML com um dropdown para selecionar idioma
     return res.send(
       renderStatsCard(stats, {
         hide: parseArray(hide),
@@ -127,6 +122,8 @@ export default async (req, res) => {
         CONSTANTS.ERROR_CACHE_SECONDS
       }, stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
     ); // Use lower cache period for errors.
+
+    // Retorna o erro também dentro de uma estrutura HTML
     return res.send(
       renderError(err.message, err.secondaryMessage, {
         title_color,
