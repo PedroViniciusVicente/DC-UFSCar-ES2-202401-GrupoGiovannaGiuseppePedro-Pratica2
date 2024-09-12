@@ -159,6 +159,7 @@ const statsFetcher = async ({
       process.env.FETCH_MULTI_PAGE_STARS === "true" &&
       res.data.data.user.repositories.pageInfo.hasNextPage;
     endCursor = res.data.data.user.repositories.pageInfo.endCursor;
+
   }
 
   return stats;
@@ -323,20 +324,20 @@ const fetchStats = async (
     }, 0);
 
   stats.totalForks = user.repositories.nodes // calculo dos forks
-    .filter((data) => {
-      return data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
-    })
-    .reduce((prev) => {
-      return prev + 1;
-    }, 0);
+  .filter((data) => {
+    return data.isFork; // Filtra repositórios que não estão na lista de exclusão e que são forks
+  })
+  .reduce((prev, curr) => {
+    return prev + 1;
+  }, 0);
 
   stats.totalRepos = user.repositories.nodes // calculo dos repos
-    .filter((data) => {
-      return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
-    })
-    .reduce((prev) => {
-      return prev + 1;
-    }, 0);
+  .filter((data) => {
+    return !repoToHide.has(data.name); // Filtra repositórios que não estão na lista de exclusão
+  })
+  .reduce((prev, curr) => {
+    return prev + 1;
+  }, 0);
 
   stats.rank = calculateRank({
     all_commits: include_all_commits,
