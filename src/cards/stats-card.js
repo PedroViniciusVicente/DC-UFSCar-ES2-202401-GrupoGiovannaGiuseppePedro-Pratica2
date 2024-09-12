@@ -213,7 +213,10 @@ const getStyles = ({
 const renderStatsCard = (stats, options = {}) => {
   const {
     name,
+    totalRepos,
+    totalForks,
     totalStars,
+    totalForks,
     totalCommits,
     totalIssues,
     totalPRs,
@@ -532,12 +535,31 @@ function calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, h
 function funcaoMetadadosSVG(i18n, totalStars, include_all_commits, totalCommits, totalPRs, show, totalPRsMerged, mergedPRsPercentage, totalReviews, totalIssues, totalDiscussionsStarted, totalDiscussionsAnswered, contributedTo) {
   const STATS = {};
 
+  STATS.repos = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalrepos"),
+    value: totalRepos,
+    id: "repos",
+  };
+  STATS.forks = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalforks"),
+    value: totalForks,
+    id: "forks",
+  };
+
   STATS.stars = {
     icon: icons.star,
     label: i18n.t("statcard.totalstars"),
     value: totalStars,
     id: "stars",
   };
+  STATS.forks = {
+    icon: icons.star,
+    label: i18n.t("statcard.totalforks"),
+    value: totalForks,
+    id: "forks",
+  }
   STATS.commits = {
     icon: icons.commits,
     label: `${i18n.t("statcard.commits")}${include_all_commits ? "" : ` (${new Date().getFullYear()})`}`,
