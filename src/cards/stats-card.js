@@ -81,7 +81,13 @@ const createTextNode = ({
  * @param {number} value The rank value to calculate progress for.
  * @returns {number} Progress value.
  */
+const calculateCircleProgressCache = new Map();
+
 const calculateCircleProgress = (value) => {
+  if (calculateCircleProgressCache.has(value)) {
+    return calculateCircleProgressCache.get(value);
+  }
+
   const radius = 40;
   const c = Math.PI * (radius * 2);
 
@@ -92,7 +98,12 @@ const calculateCircleProgress = (value) => {
     value = 100;
   }
 
-  return ((100 - value) / 100) * c;
+  const progress = ((100 - value) / 100) * c;
+
+  // Armazene o resultado no cache antes de retornar
+  calculateCircleProgressCache.set(value, progress);
+
+  return progress;
 };
 
 /**
@@ -183,7 +194,7 @@ const getStyles = ({
       transform: rotate(-90deg);
       animation: rankAnimation 1s forwards ease-in-out;
     }
-    ${process.env.NODE_ENV === "test" ? getProgressAnimation({ progress }) : getProgressAnimation({ progress })}
+    ${process.env.NODE_ENV === "test" ? "" : getProgressAnimation({ progress })}
   `;
 };
 
@@ -266,6 +277,262 @@ const renderStatsCard = (stats, options = {}) => {
   });
 
   // Meta data for creating text nodes with createTextNode function
+  const STATS = funcaoMetadadosSVG(i18n, totalStars, include_all_commits, totalCommits, totalPRs, show, totalPRsMerged, mergedPRsPercentage, totalReviews, totalIssues, totalDiscussionsStarted, totalDiscussionsAnswered, contributedTo);
+
+  const longLocales = [
+    "cn",
+    "es",
+    "fr",
+    "pt-br",
+    "ru",
+    "uk-ua",
+    "id",
+    "ml",
+    "my",
+    "pl",
+    "de",
+    "nl",
+    "zh-tw",
+    "uz",
+  ];
+  const isLongLocale = locale ? longLocales.includes(locale) : false;
+
+  // filter out hidden stats defined by user & create the text nodes
+  const statItems = Object.keys(STATS)
+    .filter((key) => !hide.includes(key))
+    .map((key, index) =>
+      // create the text nodes, and pass index so that we can calculate the line spacing
+      createTextNode({
+        icon: STATS[key].icon,
+        label: STATS[key].label,
+        value: STATS[key].value,
+        id: STATS[key].id,
+        unitSymbol: STATS[key].unitSymbol,
+        index,
+        showIcons: show_icons,
+        shiftValuePos: 79.01 + (isLongLocale ? 50 : 0),
+        bold: text_bold,
+        number_format,
+      }),
+    );
+
+  if (statItems.length === 0 && hide_rank) {
+    throw new CustomError(
+      "Could not render stats card.",
+      "Either stats or rank are required.",
+    );
+  }
+
+  // Calculate the card height depending on how many items there are
+  // but if rank circle is visible clamp the minimum height to `150`
+  var { calculateTextWidth, height, cssStyles } = definirTamanhoCard(statItems, lheight, hide_rank, rank, titleColor, ringColor, textColor, iconColor, show_icons, custom_title, i18n);
+
+  /*
+    When hide_rank=true, the minimum card width is 270 px + the title length and padding.
+    When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
+    Numbers are picked by looking at existing dimensions on production.
+  */
+  var { card, iconWidth, width, minCardWidth } = estruturacaoCard(show_icons, statItems, hide_rank, calculateTextWidth, card_width, custom_title, i18n, height, border_radius, titleColor, textColor, iconColor, bgColor, borderColor);
+
+  card.setHideBorder(hide_border);
+  card.setHideTitle(hide_title);
+  card.setCSS(cssStyles);
+
+  if (disable_animations) {
+    card.disableAnimations();
+  }
+
+  /**
+   * Calculates the right rank circle translation values such that the rank circle
+   * keeps respecting the following padding:
+   *
+   * width > RANK_CARD_DEFAULT_WIDTH: The default right padding of 70 px will be used.
+   * width < RANK_CARD_DEFAULT_WIDTH: The left and right padding will be enlarged
+   *   equally from a certain minimum at RANK_CARD_MIN_WIDTH.
+   *
+   * @returns {number} - Rank circle translation value.
+   */
+  const rankCircle = calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, hide_rank, height, rank_icon, rank, STATS, hide, i18n, include_all_commits, card);
+
+  return (
+    `
+  <html>
+  <body>
+  <div>` +
+    card.render(`
+    ${rankCircle}
+    <svg x="0" y="0">
+      ${flexLayout({
+        items: statItems,
+        gap: lheight,
+        direction: "column",
+      }).join("")}
+    </svg>
+  `) +
+    `<!-- Adiciona o drop-down para selecionar o idioma -->
+            <label for="languageSelector" onload="checkLang()">Escolha o idioma:</label>
+            <select id="languageSelector">
+              <option value="" selected>Linguagem</option>
+              <option value="en">Inglês</option> <!-- Inglês -->
+              <option value="pt-br">Português</option> <!-- Português -->
+              <option value="fr">Francês</option> <!-- Francês -->
+              <option value="es">Espanhol</option> <!-- Espanhol -->
+              <option value="de">Alemão</option> <!-- Alemão -->
+              <option value="pl">Polonês</option> <!-- Polonês -->
+              <option value="ru">Russo</option> <!-- Russo -->
+              <option value="ar">Árabe</option> <!-- Árabe -->
+              <option value="ja">Japonês</option> <!-- Japonês -->
+              <option value="cn">Chinês</option> <!-- Chinês -->
+              <option value="np">Nepalês</option> <!-- Nepalês -->
+            </select>
+          </div>
+
+          <!-- Script para manipular o SVG -->
+          <script>            
+            // Função para atualizar o título do langcard com base na seleção de idioma
+            function atualizarIdioma() {
+              // Seleciona o SVG
+              const svg = document.querySelector('svg'); // Assume que o SVG é o único na página
+              const languageOption = document.getElementById('languageSelector').value;
+
+              if (languageOption !== "") {
+                // Recarrega a página com o novo idioma selecionado
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('locale', languageOption);
+                window.location.search = urlParams.toString();
+              }
+            }
+
+            // Adiciona o evento de mudança ao drop-down
+            document.getElementById('languageSelector').addEventListener('change', atualizarIdioma);
+          </script>
+        </body>
+      </html>`
+  );
+};
+
+export { renderStatsCard, calculateCircleProgress };
+export default renderStatsCard;
+
+function estruturacaoCard(show_icons, statItems, hide_rank, calculateTextWidth, card_width, custom_title, i18n, height, border_radius, titleColor, textColor, iconColor, bgColor, borderColor) {
+  const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
+  const minCardWidth = (hide_rank
+    ? clampValue(
+      50 /* padding */ + calculateTextWidth() * 2,
+      CARD_MIN_WIDTH,
+      Infinity
+    )
+    : statItems.length
+      ? RANK_CARD_MIN_WIDTH
+      : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
+  const defaultCardWidth = (hide_rank
+    ? CARD_DEFAULT_WIDTH
+    : statItems.length
+      ? RANK_CARD_DEFAULT_WIDTH
+      : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
+  let width = card_width
+    ? isNaN(card_width)
+      ? defaultCardWidth
+      : card_width
+    : defaultCardWidth;
+  if (width < minCardWidth) {
+    width = minCardWidth;
+  }
+
+  const card = new Card({
+    customTitle: custom_title,
+    defaultTitle: statItems.length
+      ? i18n.t("statcard.title")
+      : i18n.t("statcard.ranktitle"),
+    width,
+    height,
+    border_radius,
+    colors: {
+      titleColor,
+      textColor,
+      iconColor,
+      bgColor,
+      borderColor,
+    },
+  });
+  return { card, iconWidth, width, minCardWidth };
+}
+
+function definirTamanhoCard(statItems, lheight, hide_rank, rank, titleColor, ringColor, textColor, iconColor, show_icons, custom_title, i18n) {
+  let height = Math.max(
+    45 + (statItems.length + 1) * lheight,
+    hide_rank ? 0 : statItems.length ? 150 : 180
+  );
+
+  // the lower the user's percentile the better
+  const progress = 100 - rank.percentile;
+  const cssStyles = getStyles({
+    titleColor,
+    ringColor,
+    textColor,
+    iconColor,
+    show_icons,
+    progress,
+  });
+
+  const calculateTextWidth = () => {
+    return measureText(
+      custom_title
+        ? custom_title
+        : statItems.length
+          ? i18n.t("statcard.title")
+          : i18n.t("statcard.ranktitle")
+    );
+  };
+  return { calculateTextWidth, height, cssStyles };
+}
+
+function calculoRankEAcessibilidade(statItems, iconWidth, width, minCardWidth, hide_rank, height, rank_icon, rank, STATS, hide, i18n, include_all_commits, card) {
+  const calculateRankXTranslation = () => {
+    if (statItems.length) {
+      const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
+      if (width > RANK_CARD_DEFAULT_WIDTH) {
+        const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
+        return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
+      } else {
+        return minXTranslation + (width - minCardWidth) / 2;
+      }
+    } else {
+      return width / 2 + 20 - 10;
+    }
+  };
+
+  // Conditionally rendered elements
+  const rankCircle = hide_rank
+    ? ""
+    : `<g data-testid="rank-circle"
+          transform="translate(${calculateRankXTranslation()}, ${height / 2 - 50})">
+        <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
+        <circle class="rank-circle" cx="-10" cy="8" r="40" />
+        <g class="rank-text">
+          ${rankIcon(rank_icon, rank?.level, rank?.percentile)}
+        </g>
+      </g>`;
+
+  // Accessibility Labels
+  const labels = Object.keys(STATS)
+    .filter((key) => !hide.includes(key))
+    .map((key) => {
+      if (key === "commits") {
+        return `${i18n.t("statcard.commits")} ${include_all_commits ? "" : `in ${new Date().getFullYear()}`} : ${STATS[key].value}`;
+      }
+      return `${STATS[key].label}: ${STATS[key].value}`;
+    })
+    .join(", ");
+
+  card.setAccessibilityLabel({
+    title: `${card.title}, Rank: ${rank.level}`,
+    desc: labels,
+  });
+  return rankCircle;
+}
+
+function funcaoMetadadosSVG(i18n, totalStars, include_all_commits, totalCommits, totalPRs, show, totalPRsMerged, mergedPRsPercentage, totalReviews, totalIssues, totalDiscussionsStarted, totalDiscussionsAnswered, contributedTo) {
   const STATS = {};
 
   STATS.repos = {
@@ -295,9 +562,7 @@ const renderStatsCard = (stats, options = {}) => {
   }
   STATS.commits = {
     icon: icons.commits,
-    label: `${i18n.t("statcard.commits")}${
-      include_all_commits ? "" : ` (${new Date().getFullYear()})`
-    }`,
+    label: `${i18n.t("statcard.commits")}${include_all_commits ? "" : ` (${new Date().getFullYear()})`}`,
     value: totalCommits,
     id: "commits",
   };
@@ -366,204 +631,6 @@ const renderStatsCard = (stats, options = {}) => {
     value: contributedTo,
     id: "contribs",
   };
+  return STATS;
+}
 
-  const longLocales = [
-    "cn",
-    "es",
-    "fr",
-    "pt-br",
-    "ru",
-    "uk-ua",
-    "id",
-    "ml",
-    "my",
-    "pl",
-    "de",
-    "nl",
-    "zh-tw",
-    "uz",
-  ];
-  const isLongLocale = locale ? longLocales.includes(locale) : false;
-
-  // filter out hidden stats defined by user & create the text nodes
-  const statItems = Object.keys(STATS)
-    .filter((key) => !hide.includes(key))
-    .map((key, index) =>
-      // create the text nodes, and pass index so that we can calculate the line spacing
-      createTextNode({
-        icon: STATS[key].icon,
-        label: STATS[key].label,
-        value: STATS[key].value,
-        id: STATS[key].id,
-        unitSymbol: STATS[key].unitSymbol,
-        index,
-        showIcons: show_icons,
-        shiftValuePos: 79.01 + (isLongLocale ? 50 : 0),
-        bold: text_bold,
-        number_format,
-      }),
-    );
-
-  if (statItems.length === 0 && hide_rank) {
-    throw new CustomError(
-      "Could not render stats card.",
-      "Either stats or rank are required.",
-    );
-  }
-
-  // Calculate the card height depending on how many items there are
-  // but if rank circle is visible clamp the minimum height to `150`
-  let height = Math.max(
-    45 + (statItems.length + 1) * lheight,
-    hide_rank ? 0 : statItems.length ? 150 : 180,
-  );
-
-  // the lower the user's percentile the better
-  const progress = 100 - rank.percentile;
-  const cssStyles = getStyles({
-    titleColor,
-    ringColor,
-    textColor,
-    iconColor,
-    show_icons,
-    progress,
-  });
-
-  const calculateTextWidth = () => {
-    return measureText(
-      custom_title
-        ? custom_title
-        : statItems.length
-          ? i18n.t("statcard.title")
-          : i18n.t("statcard.ranktitle"),
-    );
-  };
-
-  /*
-    When hide_rank=true, the minimum card width is 270 px + the title length and padding.
-    When hide_rank=false, the minimum card_width is 340 px + the icon width (if show_icons=true).
-    Numbers are picked by looking at existing dimensions on production.
-  */
-  const iconWidth = show_icons && statItems.length ? 16 + /* padding */ 1 : 0;
-  const minCardWidth =
-    (hide_rank
-      ? clampValue(
-          50 /* padding */ + calculateTextWidth() * 2,
-          CARD_MIN_WIDTH,
-          Infinity,
-        )
-      : statItems.length
-        ? RANK_CARD_MIN_WIDTH
-        : RANK_ONLY_CARD_MIN_WIDTH) + iconWidth;
-  const defaultCardWidth =
-    (hide_rank
-      ? CARD_DEFAULT_WIDTH
-      : statItems.length
-        ? RANK_CARD_DEFAULT_WIDTH
-        : RANK_ONLY_CARD_DEFAULT_WIDTH) + iconWidth;
-  let width = card_width
-    ? isNaN(card_width)
-      ? defaultCardWidth
-      : card_width
-    : defaultCardWidth;
-  if (width < minCardWidth) {
-    width = minCardWidth;
-  }
-
-  const card = new Card({
-    customTitle: custom_title,
-    defaultTitle: statItems.length
-      ? i18n.t("statcard.title")
-      : i18n.t("statcard.ranktitle"),
-    width,
-    height,
-    border_radius,
-    colors: {
-      titleColor,
-      textColor,
-      iconColor,
-      bgColor,
-      borderColor,
-    },
-  });
-
-  card.setHideBorder(hide_border);
-  card.setHideTitle(hide_title);
-  card.setCSS(cssStyles);
-
-  if (disable_animations) {
-    card.disableAnimations();
-  }
-
-  /**
-   * Calculates the right rank circle translation values such that the rank circle
-   * keeps respecting the following padding:
-   *
-   * width > RANK_CARD_DEFAULT_WIDTH: The default right padding of 70 px will be used.
-   * width < RANK_CARD_DEFAULT_WIDTH: The left and right padding will be enlarged
-   *   equally from a certain minimum at RANK_CARD_MIN_WIDTH.
-   *
-   * @returns {number} - Rank circle translation value.
-   */
-  const calculateRankXTranslation = () => {
-    if (statItems.length) {
-      const minXTranslation = RANK_CARD_MIN_WIDTH + iconWidth - 70;
-      if (width > RANK_CARD_DEFAULT_WIDTH) {
-        const xMaxExpansion = minXTranslation + (450 - minCardWidth) / 2;
-        return xMaxExpansion + width - RANK_CARD_DEFAULT_WIDTH;
-      } else {
-        return minXTranslation + (width - minCardWidth) / 2;
-      }
-    } else {
-      return width / 2 + 20 - 10;
-    }
-  };
-
-  // Conditionally rendered elements
-  const rankCircle = hide_rank
-    ? ""
-    : `<g data-testid="rank-circle"
-          transform="translate(${calculateRankXTranslation()}, ${
-            height / 2 - 50
-          })">
-        <circle class="rank-circle-rim" cx="-10" cy="8" r="40" />
-        <circle class="rank-circle" cx="-10" cy="8" r="40" />
-        <g class="rank-text">
-          ${rankIcon(rank_icon, rank?.level, rank?.percentile)}
-        </g>
-      </g>`;
-
-  // Accessibility Labels
-  const labels = Object.keys(STATS)
-    .filter((key) => !hide.includes(key))
-    .map((key) => {
-      if (key === "commits") {
-        return `${i18n.t("statcard.commits")} ${
-          include_all_commits ? "" : `in ${new Date().getFullYear()}`
-        } : ${STATS[key].value}`;
-      }
-      return `${STATS[key].label}: ${STATS[key].value}`;
-    })
-    .join(", ");
-
-  card.setAccessibilityLabel({
-    title: `${card.title}, Rank: ${rank.level}`,
-    desc: labels,
-  });
-
-  return card.render(`
-    ${rankCircle}
-    <svg x="0" y="0">
-      ${flexLayout({
-        items: statItems,
-        gap: lheight,
-        direction: "column",
-      }).join("")}
-    </svg>
-  `);
-};
-
-export { calculateCircleProgress };
-
-export { renderStatsCard };
-export default renderStatsCard;

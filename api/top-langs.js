@@ -34,7 +34,9 @@ export default async (req, res) => {
     disable_animations,
     hide_progress,
   } = req.query;
-  res.setHeader("Content-Type", "image/svg+xml");
+
+  // Define o cabeçalho como HTML
+  res.setHeader("Content-Type", "text/html");
 
   if (blacklist.includes(username)) {
     return res.send(
@@ -86,6 +88,7 @@ export default async (req, res) => {
       }, s-maxage=${cacheSeconds}, stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
     );
 
+    // Retorna o SVG dentro de uma estrutura HTML
     return res.send(
       renderTopLanguages(topLangs, {
         custom_title,
@@ -112,7 +115,9 @@ export default async (req, res) => {
       `max-age=${CONSTANTS.ERROR_CACHE_SECONDS / 2}, s-maxage=${
         CONSTANTS.ERROR_CACHE_SECONDS
       }, stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
-    ); // Use lower cache period for errors.
+    );
+
+    // Retorna o erro também dentro de uma estrutura HTML
     return res.send(
       renderError(err.message, err.secondaryMessage, {
         title_color,

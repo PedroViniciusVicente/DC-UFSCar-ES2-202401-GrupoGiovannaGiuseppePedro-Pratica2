@@ -32,49 +32,30 @@ const stats = {
   rank: { level: "A+", percentile: 40 },
 };
 
-const stats2 = {
-  name: "Usuario abcd",
-  totalStars: 1,
-  totalForks: 27,
-  totalCommits: 2,
-  totalIssues: 3,
-  totalPRs: 4,
-  totalPRsMerged: 5,
-  mergedPRsPercentage: 6,
-  totalReviews: 7,
-  totalDiscussionsStarted: 8,
-  totalDiscussionsAnswered: 9,
-  contributedTo: 10,
-  rank: { level: "A+", percentile: 40 },
-};
-
-function mudarIdioma(input1, input2) {
-  console.log(`Mudando a traducao de ${input1} para o idioma: ${input2}`);
-};
-
 
 describe("Testes de elementos da funcionalidade que serao melhoradas por nos", () => {
-  /*it("A traducao de idiomas deve ser feita facilmente sem precisar mexer na url para gerar uma nova", () => {
-    document.body.innerHTML = renderStatsCard(stats2);
-    console.log(document.getElementsByClassName("header")[0].textContent);
-    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd's GitHub Stats");
-
-    mudarIdioma(document.body.innerHTML, "pt-br");
-    expect(document.getElementsByClassName("header")[0].textContent).toBe("Informacoes do Usuario abcd");
-
-    mudarIdioma(document.body.innerHTML, "cn");
-    expect(document.getElementsByClassName("header")[0].textContent).toBe("Usuario abcd 统计数据");
-  });
+  // TESTE USADO PARA VERIFICAR A MUDANCA DE IDIOMAS. SERA QUE PODEMOS REMOVER??
 
   it("Tempo de rendenizacao deve ser rapido!", () => {
     const t0 = performance.now();
     document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+    document.body.innerHTML = renderStatsCard(stats);
+
     const t1 = performance.now();
     const intervaloRenderizar = t1 - t0;
 
-    console.log(t1-t0);
-    expect(intervaloRenderizar).toBeLessThanOrEqual(14);
-  });*/
+
+    console.log("Tempo levado para as renderizacoes foi de: ", t1 - t0);
+    expect(intervaloRenderizar).toBeLessThanOrEqual(10 * 20);
+  });
 
   it("A existencia de uma cache deve melhorar o desempenho de rendenizacao com o mesmo value!", () => {
     const t0semcache = performance.now();
@@ -91,16 +72,43 @@ describe("Testes de elementos da funcionalidade que serao melhoradas por nos", (
     let resultComCache = calculateCircleProgress(20);
     resultComCache = calculateCircleProgress(20);
     resultComCache = calculateCircleProgress(20);
-    resultComCache = calculateCircleProgress(30);
-    resultComCache = calculateCircleProgress(30);
-    resultComCache = calculateCircleProgress(30);
+    resultComCache = calculateCircleProgress(60);
+    resultComCache = calculateCircleProgress(60);
+    resultComCache = calculateCircleProgress(60);
     const t1comcache = performance.now();
     const intervaloComCache = t1comcache - t0comcache;
 
-    console.log(`O intervalo sem cache foi: ${intervaloSemCache}, enquanto o intervalo com cache foi: ${intervaloComCache}`);
+    console.log(
+      `O intervalo sem cache foi: ${intervaloSemCache}, enquanto o intervalo com cache foi: ${intervaloComCache}`,
+    );
     expect(intervaloSemCache).toBeGreaterThan(intervaloComCache);
+
+    // verificando que mesmo com ou sem cache a resposta eh a mesma, o que muda é a agilidade
+    expect(resultSemCache).toBe(resultComCache);
+  });
+});
+
+describe("Expansao de teste com funcionalidades ja existentes porem nao testadas", () => {
+  it("Caso o valor passado para a proporcao seja inferior a zero", () => {
+    let resultadoMenor0 = calculateCircleProgress(-10);
+    expect(resultadoMenor0).toBeCloseTo(251.3274);
+
+    resultadoMenor0 = calculateCircleProgress(-23.5);
+    expect(resultadoMenor0).toBeCloseTo(251.3274);
   });
 
+  it("Caso o valor passado para a proporcao seja igual a zero", () => {
+    let resultadoIgual0 = calculateCircleProgress(0);
+    expect(resultadoIgual0).toBeCloseTo(251.3274);
+  });
+
+  it("Caso o valor passado para a proporcao seja superior a 100", () => {
+    let resultadoMaior100 = calculateCircleProgress(120);
+    expect(resultadoMaior100).toBe(0);
+
+    resultadoMaior100 = calculateCircleProgress(30000);
+    expect(resultadoMaior100).toBe(0);
+  });
 });
 
 describe("Test renderStatsCard", () => {

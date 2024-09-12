@@ -104,7 +104,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(renderStatsCard(stats, { ...req.query }));
   });
 
@@ -113,7 +113,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderError(
         error.errors[0].message,
@@ -127,7 +127,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderError(
         error.errors[0].message,
@@ -155,7 +155,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderStatsCard(stats, {
         hide: ["issues", "prs", "contribs"],
@@ -176,7 +176,7 @@ describe("Test /api/", () => {
     await api(req, res);
 
     expect(res.setHeader.mock.calls).toEqual([
-      ["Content-Type", "image/svg+xml"],
+      ["Content-Type", "text/html"],
       [
         "Cache-Control",
         `max-age=${CONSTANTS.SIX_HOURS / 2}, s-maxage=${
@@ -192,7 +192,7 @@ describe("Test /api/", () => {
     await api(req, res);
 
     expect(res.setHeader.mock.calls).toEqual([
-      ["Content-Type", "image/svg+xml"],
+      ["Content-Type", "text/html"],
       [
         "Cache-Control",
         `max-age=${
@@ -209,7 +209,7 @@ describe("Test /api/", () => {
     await api(req, res);
 
     expect(res.setHeader.mock.calls).toEqual([
-      ["Content-Type", "image/svg+xml"],
+      ["Content-Type", "text/html"],
       [
         "Cache-Control",
         `max-age=${CONSTANTS.ERROR_CACHE_SECONDS / 2}, s-maxage=${
@@ -225,7 +225,7 @@ describe("Test /api/", () => {
       await api(req, res);
 
       expect(res.setHeader.mock.calls).toEqual([
-        ["Content-Type", "image/svg+xml"],
+        ["Content-Type", "text/html"],
         [
           "Cache-Control",
           `max-age=${CONSTANTS.ONE_DAY / 2}, s-maxage=${
@@ -241,7 +241,7 @@ describe("Test /api/", () => {
       await api(req, res);
 
       expect(res.setHeader.mock.calls).toEqual([
-        ["Content-Type", "image/svg+xml"],
+        ["Content-Type", "text/html"],
         [
           "Cache-Control",
           `max-age=${CONSTANTS.SIX_HOURS / 2}, s-maxage=${
@@ -256,7 +256,7 @@ describe("Test /api/", () => {
       await api(req, res);
 
       expect(res.setHeader.mock.calls).toEqual([
-        ["Content-Type", "image/svg+xml"],
+        ["Content-Type", "text/html"],
         [
           "Cache-Control",
           `max-age=${CONSTANTS.SIX_HOURS / 2}, s-maxage=${
@@ -286,7 +286,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderStatsCard(stats, {
         hide: ["issues", "prs", "contribs"],
@@ -307,7 +307,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderError("Something went wrong", "This username is blacklisted"),
     );
@@ -318,7 +318,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderError("Something went wrong", "Language not found"),
     );
@@ -336,7 +336,7 @@ describe("Test /api/", () => {
 
     await api(req, res);
 
-    expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
+    expect(res.setHeader).toBeCalledWith("Content-Type", "text/html");
     expect(res.send).toBeCalledWith(
       renderError("Could not fetch total commits.", "Please try again later"),
     );
